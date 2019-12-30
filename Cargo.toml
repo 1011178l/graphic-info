@@ -13,7 +13,3 @@ clap = "^2.33"
 [[bin]]
 name = "graphic-info"
 path = "src/main.rs"
-
-[lib]
-name = "graphic_info"
-path = "src/graphic_info.rs"

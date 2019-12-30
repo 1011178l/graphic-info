@@ -1,8 +1,6 @@
 extern crate clap;
 
-use std::fs::File;
-use std::io::Read;
-use ::graphic_info::GraphicInfo;
+use graphic_info::{GraphicInfo, GraphicInfoFile};
 use clap::{Arg, App};
 
 fn main() -> std::io::Result<()> {
@@ -14,16 +12,8 @@ fn main() -> std::io::Result<()> {
                             .required(true))
                     .get_matches();
 
-    let mut file = File::open(matches.value_of("GraphicInfo.bin").unwrap())?;
-    let mut buf = [0; 40];
-    let mut collection: Vec<GraphicInfo> = vec!();
-
-    loop {
-        match file.read_exact(&mut buf) {
-            Ok(_) => collection.push(GraphicInfo::new(&buf).unwrap()),
-            Err(_) => break,
-        }
-    }
+    let file = GraphicInfoFile::new(matches.value_of("GraphicInfo.bin").unwrap())?;
+    let collection: Vec<GraphicInfo> = file.collect();
 
     println!("{}", collection.len());
 
