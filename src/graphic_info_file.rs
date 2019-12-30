@@ -2,6 +2,7 @@ use std::fs::File;
 use std::io::Read;
 use crate::graphic_info::GraphicInfo;
 
+#[derive(Debug)]
 pub struct GraphicInfoFile {
     file: File,
 }
@@ -28,5 +29,28 @@ impl Iterator for GraphicInfoFile {
             Ok(_) => return Some(GraphicInfo::new(&buf).unwrap()),
             Err(_) => return None,
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{GraphicInfoFile, GraphicInfo};
+
+    #[test]
+    fn test_new () {
+        assert!(GraphicInfoFile::new("resources/GraphicInfo.test.bin").is_ok());
+    }
+
+    #[test]
+    fn test_new_failed() {
+        assert!(GraphicInfoFile::new("resources/GraphicInfo-broken.test.bin").is_err())
+    }
+
+    #[test]
+    fn test_iter() {
+        let file = GraphicInfoFile::new("resources/GraphicInfo.test.bin").unwrap();
+        let blocks: Vec<GraphicInfo> = file.collect();
+
+        assert_eq!(3, blocks.len());
     }
 }
