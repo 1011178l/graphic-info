@@ -1,3 +1,6 @@
+use std::io::Cursor;
+use scroll::IOread;
+
 fn main() {
     let bytes = [0; 40];
     let graphic_info = GraphicInfo::new(&bytes);
@@ -5,7 +8,7 @@ fn main() {
     println!("{:?}", graphic_info);
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug)]
 struct GraphicInfo {
     id: u32,
     address: u32,
@@ -26,8 +29,27 @@ impl GraphicInfo {
             return Err("There are 40 bytes for each graphic info chunk.");
         }
 
-        let ret: Self = Default::default();
+        let mut cursor = Cursor::new(bytes);
 
-        Ok(ret)
+        let id = cursor.ioread::<u32>().unwrap();
+        let address = cursor.ioread::<u32>().unwrap();
+        let length = cursor.ioread::<u32>().unwrap();
+        let offset_x = cursor.ioread::<i32>().unwrap();
+        let offset_y = cursor.ioread::<i32>().unwrap();
+        let width = cursor.ioread::<u32>().unwrap();
+        let height = cursor.ioread::<u32>().unwrap();
+        let tile_east = cursor.ioread::<u8>().unwrap();
+        let tile_south = cursor.ioread::<u8>().unwrap();
+
+        let mut unknown = [0; 5];
+        for i in 0..5 {
+            unknown[i] = cursor.ioread::<u8>().unwrap();
+        }
+
+        let map = cursor.ioread::<u32>().unwrap();
+        
+        Ok(Self {
+            id, address, length, offset_x, offset_y, width, height, tile_east, tile_south, unknown, map,
+        })
     }
 }
