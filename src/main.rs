@@ -1,18 +1,20 @@
-use std::env;
-use std::process;
+extern crate clap;
+
 use std::fs::File;
 use std::io::Read;
 use ::graphic_info::GraphicInfo;
+use clap::{Arg, App};
 
 fn main() -> std::io::Result<()> {
-    let args: Vec<String> = env::args().collect();
+    let matches = App::new("graphic-info")
+                    .version("0.1")
+                    .author("Vincent Chi <song374561@chivincent.net>")
+                    .arg(Arg::with_name("GraphicInfo.bin")
+                            .help("The path of GraphicInfo.bin")
+                            .required(true))
+                    .get_matches();
 
-    if args.len() != 2 {
-        eprintln!("Usage: ./graphic-info [GraphicInfo.bin]");
-        process::exit(1);
-    }
-
-    let mut file = File::open(&args[1])?;
+    let mut file = File::open(matches.value_of("GraphicInfo.bin").unwrap())?;
     let mut buf = [0; 40];
     let mut collection: Vec<GraphicInfo> = vec!();
 

@@ -8,6 +8,7 @@ edition = "2018"
 
 [dependencies]
 scroll = "^0.10"
+clap = "^2.33"
 
 [[bin]]
 name = "graphic-info"
