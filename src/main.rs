@@ -2,7 +2,7 @@ extern crate clap;
 
 use std::fs::File;
 use std::io::Read;
-use ::graphic_info::GraphicInfo;
+use graphic_info::GraphicInfo;
 use clap::{Arg, App};
 
 fn main() -> std::io::Result<()> {
