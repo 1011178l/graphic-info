@@ -12,6 +12,7 @@ pub struct GraphicInfo {
     height: u32,
     tile_east: u8,
     tile_south: u8,
+    access: u8,
     unknown: [u8; 5],
     map: u32,
 }
@@ -33,6 +34,7 @@ impl GraphicInfo {
         let height = cursor.ioread::<u32>().unwrap();
         let tile_east = cursor.ioread::<u8>().unwrap();
         let tile_south = cursor.ioread::<u8>().unwrap();
+        let access = cursor.ioread::<u8>().unwrap();
 
         let mut unknown = [0; 5];
         for i in 0..5 {
@@ -42,7 +44,31 @@ impl GraphicInfo {
         let map = cursor.ioread::<u32>().unwrap();
         
         Ok(Self {
-            id, address, length, offset_x, offset_y, width, height, tile_east, tile_south, unknown, map,
+            id, address, length, offset_x, offset_y, width, height, tile_east, tile_south, access, unknown, map,
         })
     }
+}
+
+#[test]
+fn test_new() {
+    let bytes = [
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xa8, 0x01, 0x00, 0x00,
+        0xe0, 0xff, 0xff, 0xff, 0xe8, 0xff, 0xff, 0xff, 0x40, 0x00, 0x00, 0x00,
+        0x2f, 0x00, 0x00, 0x00, 0x01, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0xe7, 0x03, 0x00, 0x00
+    ];
+    let graphic_info = GraphicInfo::new(&bytes).unwrap();
+
+    assert_eq!(graphic_info.id, 0);
+    assert_eq!(graphic_info.address, 0);
+    assert_eq!(graphic_info.length, 424);
+    assert_eq!(graphic_info.offset_x, -32);
+    assert_eq!(graphic_info.offset_y, -24);
+    assert_eq!(graphic_info.width, 64);
+    assert_eq!(graphic_info.height, 47);
+    assert_eq!(graphic_info.tile_east, 1);
+    assert_eq!(graphic_info.tile_south, 1);
+    assert_eq!(graphic_info.access, 1);
+    assert_eq!(graphic_info.unknown, [0, 0, 0, 0, 0]);
+    assert_eq!(graphic_info.map, 999);
 }
