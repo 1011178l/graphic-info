@@ -8,3 +8,11 @@ edition = "2018"
 
 [dependencies]
 scroll = "^0.10"
+
+[[bin]]
+name = "graphic-info"
+path = "src/main.rs"
+
+[lib]
+name = "graphic_info"
+path = "src/graphic_info.rs"
