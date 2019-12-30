@@ -1,7 +1,11 @@
 fn main() {
-    println!("Hello, world!");
+    let bytes = [0; 40];
+    let graphic_info = GraphicInfo::new(&bytes);
+
+    println!("{:?}", graphic_info);
 }
 
+#[derive(Debug, Default)]
 struct GraphicInfo {
     id: u32,
     address: u32,
@@ -14,4 +18,16 @@ struct GraphicInfo {
     tile_south: u8,
     unknown: [u8; 5],
     map: u32,
+}
+
+impl GraphicInfo {
+    fn new (bytes: &[u8]) -> Result<Self, &'static str> {
+        if bytes.len() != 40 {
+            return Err("There are 40 bytes for each graphic info chunk.");
+        }
+
+        let ret: Self = Default::default();
+
+        Ok(ret)
+    }
 }
