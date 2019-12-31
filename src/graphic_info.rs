@@ -3,18 +3,18 @@ use scroll::IOread;
 
 #[derive(Debug)]
 pub struct GraphicInfo {
-    id: u32,
-    address: u32,
-    length: u32,
-    offset_x: i32,
-    offset_y: i32,
-    width: u32,
-    height: u32,
-    tile_east: u8,
-    tile_south: u8,
-    access: u8,
-    unknown: [u8; 5],
-    map: u32,
+    pub id: u32,
+    pub address: u32,
+    pub length: u32,
+    pub offset_x: i32,
+    pub offset_y: i32,
+    pub width: u32,
+    pub height: u32,
+    pub tile_east: u8,
+    pub tile_south: u8,
+    pub access: u8,
+    pub unknown: [u8; 5],
+    pub map: u32,
 }
 
 impl GraphicInfo {
