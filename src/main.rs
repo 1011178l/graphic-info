@@ -15,11 +15,11 @@ fn main() -> std::io::Result<()> {
                     .get_matches();
 
 
-    let file = GraphicInfoFile::new(matches.value_of("GraphicInfo.bin").unwrap())?;
+    let mut file = GraphicInfoFile::new(matches.value_of("GraphicInfo.bin").unwrap())?;
 
     match matches.subcommand() {
         ("info", _) | _ => {
-            println!("Grpahic Info Count: {}", file.count());
+            file.show_info();
         },
     }
 
