@@ -9,6 +9,7 @@ edition = "2018"
 [dependencies]
 scroll = "^0.10"
 clap = "^2.33"
+sqlite = "^0.25"
 
 [[bin]]
 name = "graphic-info"

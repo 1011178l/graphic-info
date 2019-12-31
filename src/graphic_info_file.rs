@@ -1,6 +1,10 @@
+extern crate sqlite;
+
 use std::fs::File;
 use std::io::Read;
 use crate::graphic_info::GraphicInfo;
+use super::Database;
+use sqlite::Value;
 
 #[derive(Debug)]
 pub struct GraphicInfoFile {
@@ -20,6 +24,38 @@ impl GraphicInfoFile {
 
     pub fn show_info (&mut self) {
         println!("Number of Graphic Info: {}", self.count());
+    }
+
+    pub fn dump_into (&mut self, database: &Database) {
+        let mut statement = database.connection.prepare(
+            "INSERT INTO graphic_info (
+                graphic_id, address, length, offset_x, offset_y, width, height, tile_east, tile_south, access, unknown0, unknown1, unknown2, unknown3, unknown4, map
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"
+        )
+        .unwrap()
+        .cursor();
+        
+        self.for_each(|graphic_info| {
+            statement.bind(&[
+                Value::Integer(graphic_info.id as i64), 
+                Value::Integer(graphic_info.address as i64), 
+                Value::Integer(graphic_info.length as i64),
+                Value::Integer(graphic_info.offset_x as i64), 
+                Value::Integer(graphic_info.offset_y as i64), 
+                Value::Integer(graphic_info.width as i64), 
+                Value::Integer(graphic_info.height as i64), 
+                Value::Integer(graphic_info.tile_east as i64), 
+                Value::Integer(graphic_info.tile_south as i64), 
+                Value::Integer(graphic_info.unknown[0] as i64), 
+                Value::Integer(graphic_info.unknown[1] as i64), 
+                Value::Integer(graphic_info.unknown[2] as i64), 
+                Value::Integer(graphic_info.unknown[3] as i64), 
+                Value::Integer(graphic_info.unknown[4] as i64), 
+                Value::Integer(graphic_info.map as i64)
+            ]).unwrap();
+
+            let _ = statement.next().unwrap();
+        })
     }
 }
 
