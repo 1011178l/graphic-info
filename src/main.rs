@@ -2,10 +2,11 @@ extern crate clap;
 extern crate sqlite;
 
 use std::path::Path;
+use std::io::Result;
 use graphic_info::{GraphicInfoFile, Database};
 use clap::{Arg, App, SubCommand};
 
-fn main() -> std::io::Result<()> {
+fn main() -> Result<()> {
     let matches = App::new(env!("CARGO_PKG_NAME"))
                     .version(env!("CARGO_PKG_VERSION"))
                     .author(env!("CARGO_PKG_AUTHORS"))
@@ -23,13 +24,13 @@ fn main() -> std::io::Result<()> {
                     .get_matches();
 
     let path = Path::new(matches.value_of("GraphicInfo.bin").unwrap());
-    let mut file = GraphicInfoFile::new(path.to_str().unwrap())?;
+    let mut file = GraphicInfoFile::new(path)?;
 
     match matches.subcommand() {
         ("dump", Some(sub_matches)) => {
             let database = Database::new(sub_matches.value_of("output").unwrap())?;
             database.migrate().unwrap();
-            
+
             file.dump_into(&database);
         }
         ("info", _) | _ => {

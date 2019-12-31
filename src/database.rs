@@ -1,6 +1,7 @@
 extern crate sqlite;
 
 use std::path::Path;
+use std::fs::File;
 use sqlite::Connection;
 
 pub struct Database {
@@ -11,7 +12,7 @@ impl Database {
     pub fn new(path: &str) -> Result<Self, std::io::Error> {
         let path = Path::new(path);
         if !path.exists() {
-            std::fs::File::create(path)?;
+            File::create(path)?;
         }
 
         let connection = sqlite::Connection::open(path).unwrap();

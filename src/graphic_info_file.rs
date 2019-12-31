@@ -1,9 +1,10 @@
 extern crate sqlite;
 
 use std::fs::File;
-use std::io::Read;
+use std::path::Path;
+use std::io::{Read, Error, ErrorKind};
 use crate::graphic_info::GraphicInfo;
-use super::Database;
+use crate::Database;
 use sqlite::Value;
 
 #[derive(Debug)]
@@ -12,11 +13,10 @@ pub struct GraphicInfoFile {
 }
 
 impl GraphicInfoFile {
-    pub fn new (path: &str) -> Result<Self, std::io::Error> {
+    pub fn new (path: &Path) -> Result<Self, Error> {
         let file = File::open(&path)?;
-
         if file.metadata()?.len() % 40 != 0 {
-            return Err(std::io::Error::new(std::io::ErrorKind::Other, "Invalid input file size."));
+            return Err(Error::new(ErrorKind::Other, "Invalid input file size."));
         }
 
         Ok(Self{file})
@@ -75,20 +75,21 @@ impl Iterator for GraphicInfoFile {
 #[cfg(test)]
 mod tests {
     use super::{GraphicInfoFile, GraphicInfo};
+    use std::path::Path;
 
     #[test]
     fn test_new () {
-        assert!(GraphicInfoFile::new("resources/GraphicInfo.test.bin").is_ok());
+        assert!(GraphicInfoFile::new(&Path::new("./resources/GraphicInfo.test.bin")).is_ok());
     }
 
     #[test]
     fn test_new_failed() {
-        assert!(GraphicInfoFile::new("resources/GraphicInfo-broken.test.bin").is_err())
+        assert!(GraphicInfoFile::new(&Path::new("./resources/GraphicInfo-broken.test.bin")).is_err())
     }
 
     #[test]
     fn test_iter() {
-        let file = GraphicInfoFile::new("resources/GraphicInfo.test.bin").unwrap();
+        let file = GraphicInfoFile::new(&Path::new("resources/GraphicInfo.test.bin")).unwrap();
         let blocks: Vec<GraphicInfo> = file.collect();
 
         assert_eq!(3, blocks.len());
