@@ -26,14 +26,12 @@ impl GraphicInfoFile {
         println!("Number of Graphic Info: {}", self.count());
     }
 
-    pub fn dump_into (&mut self, database: &Database) {
+    pub fn dump_into (&mut self, database: &Database) -> Result<(), sqlite::Error> {
         let mut statement = database.connection.prepare(
             "INSERT INTO graphic_info (
                 graphic_id, address, length, offset_x, offset_y, width, height, tile_east, tile_south, access, unknown0, unknown1, unknown2, unknown3, unknown4, map
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"
-        )
-        .unwrap()
-        .cursor();
+        )?.cursor();
         
         self.for_each(|graphic_info| {
             statement.bind(&[
@@ -55,7 +53,9 @@ impl GraphicInfoFile {
             ]).unwrap();
 
             let _ = statement.next().unwrap();
-        })
+        });
+
+        Ok(())
     }
 }
 
