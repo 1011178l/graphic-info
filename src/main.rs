@@ -16,15 +16,19 @@ fn main() -> std::io::Result<()> {
                     .subcommand(SubCommand::with_name("info")
                             .about("Show the information of graphic info file."))
                     .subcommand(SubCommand::with_name("dump")
-                            .about("Dump all of graphic info into sqlite file."))
+                            .about("Dump all of graphic info into sqlite file.")
+                            .arg(Arg::with_name("output")
+                                .short("o")
+                                .help("The filename for dump output.")
+                                .default_value("dump.sqlite")))
                     .get_matches();
 
     let path = Path::new(matches.value_of("GraphicInfo.bin").unwrap());
     let mut file = GraphicInfoFile::new(path.to_str().unwrap())?;
 
     match matches.subcommand() {
-        ("dump", _) => {
-            let connection = sqlite::open("test.sqlite").unwrap();
+        ("dump", Some(sub_matches)) => {
+            let connection = sqlite::open(sub_matches.value_of("output").unwrap()).unwrap();
             connection.execute(
                 "DROP TABLE IF EXISTS graphic_info;
                 CREATE TABLE graphic_info (
