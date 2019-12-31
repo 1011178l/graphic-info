@@ -1,9 +1,10 @@
 extern crate sqlite;
 
 use std::fs::File;
-use std::io::Read;
+use std::path::Path;
+use std::io::{Read, Error, ErrorKind};
 use crate::graphic_info::GraphicInfo;
-use super::Database;
+use crate::Database;
 use sqlite::Value;
 
 #[derive(Debug)]
@@ -12,11 +13,10 @@ pub struct GraphicInfoFile {
 }
 
 impl GraphicInfoFile {
-    pub fn new (path: &str) -> Result<Self, std::io::Error> {
+    pub fn new (path: &Path) -> Result<Self, Error> {
         let file = File::open(&path)?;
-
         if file.metadata()?.len() % 40 != 0 {
-            return Err(std::io::Error::new(std::io::ErrorKind::Other, "Invalid input file size."));
+            return Err(Error::new(ErrorKind::Other, "Invalid input file size."));
         }
 
         Ok(Self{file})
@@ -26,14 +26,12 @@ impl GraphicInfoFile {
         println!("Number of Graphic Info: {}", self.count());
     }
 
-    pub fn dump_into (&mut self, database: &Database) {
+    pub fn dump_into (&mut self, database: &Database) -> Result<(), sqlite::Error> {
         let mut statement = database.connection.prepare(
             "INSERT INTO graphic_info (
                 graphic_id, address, length, offset_x, offset_y, width, height, tile_east, tile_south, access, unknown0, unknown1, unknown2, unknown3, unknown4, map
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"
-        )
-        .unwrap()
-        .cursor();
+        )?.cursor();
         
         self.for_each(|graphic_info| {
             statement.bind(&[
@@ -55,7 +53,9 @@ impl GraphicInfoFile {
             ]).unwrap();
 
             let _ = statement.next().unwrap();
-        })
+        });
+
+        Ok(())
     }
 }
 
@@ -74,23 +74,33 @@ impl Iterator for GraphicInfoFile {
 
 #[cfg(test)]
 mod tests {
-    use super::{GraphicInfoFile, GraphicInfo};
+    use super::{GraphicInfoFile, GraphicInfo, Database};
+    use std::path::Path;
 
     #[test]
     fn test_new () {
-        assert!(GraphicInfoFile::new("resources/GraphicInfo.test.bin").is_ok());
+        assert!(GraphicInfoFile::new(&Path::new("./resources/GraphicInfo.test.bin")).is_ok());
     }
 
     #[test]
     fn test_new_failed() {
-        assert!(GraphicInfoFile::new("resources/GraphicInfo-broken.test.bin").is_err())
+        assert!(GraphicInfoFile::new(&Path::new("./resources/GraphicInfo-broken.test.bin")).is_err())
     }
 
     #[test]
     fn test_iter() {
-        let file = GraphicInfoFile::new("resources/GraphicInfo.test.bin").unwrap();
+        let file = GraphicInfoFile::new(&Path::new("resources/GraphicInfo.test.bin")).unwrap();
         let blocks: Vec<GraphicInfo> = file.collect();
 
         assert_eq!(3, blocks.len());
+    }
+
+    #[test]
+    fn test_dump_into() {
+        let database = Database::new(":memory:").unwrap();
+        database.migrate().unwrap();
+        let mut file = GraphicInfoFile::new(&Path::new("resources/GraphicInfo.test.bin")).unwrap();
+
+        assert!(file.dump_into(&database).is_ok());
     }
 }

@@ -1,6 +1,8 @@
 extern crate sqlite;
 
 use std::path::Path;
+use std::fs::File;
+use std::error::Error;
 use sqlite::Connection;
 
 pub struct Database {
@@ -8,18 +10,24 @@ pub struct Database {
 }
 
 impl Database {
-    pub fn new(path: &str) -> Result<Self, std::io::Error> {
-        let path = Path::new(path);
-        if !path.exists() {
-            std::fs::File::create(path)?;
-        }
-
-        let connection = sqlite::Connection::open(path).unwrap();
+    pub fn new(path: &str) -> Result<Self, Box<dyn Error>> {
+        match path {
+            ":memory:" => {
+                return Ok(Self{connection: Connection::open(path)?});
+            }
+            _ => {
+                let path = Path::new(path);
+                if !path.exists() {
+                    File::create(path)?;
+                }
         
-        Ok(Self{connection})
+                return Ok(Self{connection: Connection::open(path)?});
+            }
+        }
     }
 
-    pub fn migrate(&self) -> Result<(), sqlite::Error> {
+
+    pub fn migrate(&self) -> Result<(), Box<dyn Error>> {
         self.connection.execute(
             "DROP TABLE IF EXISTS graphic_info;
             CREATE TABLE graphic_info (
