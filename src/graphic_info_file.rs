@@ -74,7 +74,7 @@ impl Iterator for GraphicInfoFile {
 
 #[cfg(test)]
 mod tests {
-    use super::{GraphicInfoFile, GraphicInfo};
+    use super::{GraphicInfoFile, GraphicInfo, Database};
     use std::path::Path;
 
     #[test]
@@ -93,5 +93,14 @@ mod tests {
         let blocks: Vec<GraphicInfo> = file.collect();
 
         assert_eq!(3, blocks.len());
+    }
+
+    #[test]
+    fn test_dump_into() {
+        let database = Database::new(":memory:").unwrap();
+        database.migrate().unwrap();
+        let mut file = GraphicInfoFile::new(&Path::new("resources/GraphicInfo.test.bin")).unwrap();
+
+        assert!(file.dump_into(&database).is_ok());
     }
 }

@@ -11,15 +11,21 @@ pub struct Database {
 
 impl Database {
     pub fn new(path: &str) -> Result<Self, Box<dyn Error>> {
-        let path = Path::new(path);
-        if !path.exists() {
-            File::create(path)?;
-        }
-
-        let connection = sqlite::Connection::open(path)?;
+        match path {
+            ":memory:" => {
+                return Ok(Self{connection: Connection::open(path)?});
+            }
+            _ => {
+                let path = Path::new(path);
+                if !path.exists() {
+                    File::create(path)?;
+                }
         
-        Ok(Self{connection})
+                return Ok(Self{connection: Connection::open(path)?});
+            }
+        }
     }
+
 
     pub fn migrate(&self) -> Result<(), Box<dyn Error>> {
         self.connection.execute(
