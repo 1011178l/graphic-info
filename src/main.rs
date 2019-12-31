@@ -4,7 +4,7 @@ extern crate sqlite;
 use std::path::Path;
 use graphic_info::{GraphicInfo, GraphicInfoFile};
 use clap::{Arg, App, SubCommand};
-use sqlite::Value;
+use sqlite::{Connection, Value};
 
 fn main() -> std::io::Result<()> {
     let matches = App::new(env!("CARGO_PKG_NAME"))
@@ -28,40 +28,69 @@ fn main() -> std::io::Result<()> {
 
     match matches.subcommand() {
         ("dump", Some(sub_matches)) => {
-            let connection = sqlite::open(sub_matches.value_of("output").unwrap()).unwrap();
-            connection.execute(
-                "DROP TABLE IF EXISTS graphic_info;
-                CREATE TABLE graphic_info (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    graphic_id INTEGER, 
-                    address INTEGER, 
-                    length INTEGER, 
-                    offset_x INTEGER, 
-                    offset_y INTEGER, 
-                    width INTEGER, 
-                    height INTEGER, 
-                    tile_east INTEGER, 
-                    tile_south INTEGER, 
-                    access INTEGER, 
-                    unknown0 INTEGER,
-                    unknown1 INTEGER,
-                    unknown2 INTEGER,
-                    unknown3 INTEGER,
-                    unknown4 INTEGER,
-                    map INTEGER
-                );"
-            ).unwrap();
+            let database = Database::new(sub_matches.value_of("output").unwrap())?;
+            database.migrate().unwrap();
+            database.insert(file);
+        }
+        ("info", _) | _ => {
+            file.show_info();
+        },
+    }
 
-            let mut statement = connection
-                .prepare(
-                    "INSERT INTO graphic_info (
-                        graphic_id, address, length, offset_x, offset_y, width, height, tile_east, tile_south, access, unknown0, unknown1, unknown2, unknown3, unknown4, map
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"
-                )
-                .unwrap()
-                .cursor();
+    Ok(())
+}
 
-            for gi in file {
+struct Database {
+    connection: Connection,
+}
+
+impl Database {
+    fn new(path: &str) -> Result<Self, std::io::Error> {
+        let path = Path::new(path);
+        if !path.exists() {
+            std::fs::File::create(path.to_str().unwrap())?;
+        }
+
+        let connection = sqlite::Connection::open(path).unwrap();
+        
+        Ok(Self{connection})
+    }
+
+    fn migrate(&self) -> Result<(), sqlite::Error> {
+        self.connection.execute(
+            "DROP TABLE IF EXISTS graphic_info;
+            CREATE TABLE graphic_info (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                graphic_id INTEGER, 
+                address INTEGER, 
+                length INTEGER, 
+                offset_x INTEGER, 
+                offset_y INTEGER, 
+                width INTEGER, 
+                height INTEGER, 
+                tile_east INTEGER, 
+                tile_south INTEGER, 
+                access INTEGER, 
+                unknown0 INTEGER,
+                unknown1 INTEGER,
+                unknown2 INTEGER,
+                unknown3 INTEGER,
+                unknown4 INTEGER,
+                map INTEGER
+            );")?;
+
+            Ok(())
+    }
+
+    fn insert(&self, graphic_info_file: GraphicInfoFile) {
+        let mut statement = self.connection.prepare(
+            "INSERT INTO graphic_info (
+                graphic_id, address, length, offset_x, offset_y, width, height, tile_east, tile_south, access, unknown0, unknown1, unknown2, unknown3, unknown4, map
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);")
+            .unwrap()
+            .cursor();
+        
+            for gi in graphic_info_file {
                 statement.bind(&[
                     Value::Integer(gi.id as i64), 
                     Value::Integer(gi.address as i64), 
@@ -82,11 +111,5 @@ fn main() -> std::io::Result<()> {
 
                 let _ = statement.next().unwrap();
             }
-        }
-        ("info", _) | _ => {
-            file.show_info();
-        },
     }
-
-    Ok(())
 }
