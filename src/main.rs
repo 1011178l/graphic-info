@@ -2,7 +2,7 @@ extern crate clap;
 extern crate sqlite;
 
 use std::path::Path;
-use graphic_info::{GraphicInfo, GraphicInfoFile};
+use graphic_info::{GraphicInfoFile};
 use clap::{Arg, App, SubCommand};
 use sqlite::{Connection, Value};
 
