@@ -17,6 +17,10 @@ impl GraphicInfoFile {
 
         Ok(Self{file})
     }
+
+    pub fn show_info (&mut self) {
+        println!("Number of Graphic Info: {}", self.count());
+    }
 }
 
 impl Iterator for GraphicInfoFile {
