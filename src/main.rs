@@ -28,9 +28,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     match matches.subcommand() {
         ("dump", Some(sub_matches)) => {
             let database = Database::new(sub_matches.value_of("output").unwrap())?;
-            database.migrate().unwrap();
+            database.migrate()?;
 
-            let _ = file.dump_into(&database);
+            file.dump_into(&database)?;
         }
         ("info", _) | _ => {
             file.show_info();
