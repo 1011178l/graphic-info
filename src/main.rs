@@ -12,12 +12,17 @@ fn main() -> std::io::Result<()> {
                             .required(true))
                     .subcommand(SubCommand::with_name("info")
                             .about("Show the information of graphic info file."))
+                    .subcommand(SubCommand::with_name("dump")
+                            .about("Dump all of graphic info into sqlite file."))
                     .get_matches();
 
 
     let mut file = GraphicInfoFile::new(matches.value_of("GraphicInfo.bin").unwrap())?;
 
     match matches.subcommand() {
+        ("dump", _) => {
+            
+        }
         ("info", _) | _ => {
             file.show_info();
         },
