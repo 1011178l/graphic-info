@@ -29,8 +29,8 @@ impl GraphicInfoFile {
     pub fn dump_into (&mut self, database: &Database) -> Result<(), sqlite::Error> {
         let mut statement = database.connection.prepare(
             "INSERT INTO graphic_info (
-                graphic_id, address, length, offset_x, offset_y, width, height, tile_east, tile_south, access, unknown0, unknown1, unknown2, unknown3, unknown4, map
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"
+                graphic_id, address, length, offset_x, offset_y, width, height, tile_east, tile_south, access, unknown0, unknown1, unknown2, unknown3, unknown4, map, binary
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"
         )?.cursor();
         
         self.for_each(|graphic_info| {
@@ -44,12 +44,14 @@ impl GraphicInfoFile {
                 Value::Integer(graphic_info.height as i64), 
                 Value::Integer(graphic_info.tile_east as i64), 
                 Value::Integer(graphic_info.tile_south as i64), 
+                Value::Integer(graphic_info.access as i64),
                 Value::Integer(graphic_info.unknown[0] as i64), 
                 Value::Integer(graphic_info.unknown[1] as i64), 
                 Value::Integer(graphic_info.unknown[2] as i64), 
                 Value::Integer(graphic_info.unknown[3] as i64), 
                 Value::Integer(graphic_info.unknown[4] as i64), 
-                Value::Integer(graphic_info.map as i64)
+                Value::Integer(graphic_info.map as i64),
+                Value::Binary(bincode::serialize(&graphic_info).unwrap())
             ]).unwrap();
 
             let _ = statement.next().unwrap();

@@ -13,7 +13,7 @@ impl Database {
     pub fn new(path: &str) -> Result<Self, Box<dyn Error>> {
         match path {
             ":memory:" => {
-                return Ok(Self{connection: Connection::open(path)?});
+                return Database::open(path);
             }
             _ => {
                 let path = Path::new(path);
@@ -21,11 +21,14 @@ impl Database {
                     File::create(path)?;
                 }
         
-                return Ok(Self{connection: Connection::open(path)?});
+                return Database::open(path.to_str().unwrap());
             }
         }
     }
 
+    pub fn open(path: &str) -> Result<Self, Box<dyn Error>> {
+        Ok(Self{connection: Connection::open(path)?})
+    }
 
     pub fn migrate(&self) -> Result<(), Box<dyn Error>> {
         self.connection.execute(
@@ -47,7 +50,8 @@ impl Database {
                 unknown2 INTEGER,
                 unknown3 INTEGER,
                 unknown4 INTEGER,
-                map INTEGER
+                map INTEGER,
+                binary BINARY
             );")?;
 
             Ok(())
