@@ -3,9 +3,9 @@ extern crate sqlite;
 use std::fs::File;
 use std::path::Path;
 use std::io::{Read, Error, ErrorKind};
-use crate::graphic_info::GraphicInfo;
-use crate::Database;
+use crate::{GraphicInfo, Database};
 use sqlite::Value;
+use bincode;
 
 #[derive(Debug)]
 pub struct GraphicInfoFile {
@@ -66,7 +66,10 @@ impl Iterator for GraphicInfoFile {
         let mut buf = [0; 40];
 
         match self.file.read_exact(&mut buf) {
-            Ok(_) => return Some(GraphicInfo::new(&buf).unwrap()),
+            Ok(_) => {
+                let graphic_info: GraphicInfo = bincode::deserialize(&buf).unwrap();
+                return Some(graphic_info);
+            },
             Err(_) => return None,
         }
     }
