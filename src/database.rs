@@ -56,4 +56,13 @@ impl Database {
 
             Ok(())
     }
+
+    pub fn update (&self, id: i64, graphic_info: &[u8]) -> Result<(), sqlite::Error> {
+        let mut statement = self.connection.prepare("UPDATE graphic_info SET binary = ? WHERE id = ?")?;
+        statement.bind(1, graphic_info)?;
+        statement.bind(2, id)?;
+        statement.next()?;
+
+        Ok(())
+    }
 }
