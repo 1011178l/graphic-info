@@ -57,14 +57,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             }
         },
         ("dump", Some(sub_matches)) => {
-            let mut file = GraphicInfoFile::new(&Path::new(sub_matches.value_of("GraphicInfo.bin").unwrap()))?;
+            let mut file = GraphicInfoFile::open(&Path::new(sub_matches.value_of("GraphicInfo.bin").unwrap()))?;
             let database = Database::new(sub_matches.value_of("output").unwrap())?;
             database.migrate()?;
 
             file.dump_into(&database)?;
         }
         ("info", Some(sub_matches)) => {
-            let mut file = GraphicInfoFile::new(&Path::new(sub_matches.value_of("GraphicInfo.bin").unwrap()))?;
+            let mut file = GraphicInfoFile::open(&Path::new(sub_matches.value_of("GraphicInfo.bin").unwrap()))?;
             file.show_info();
         },
         _ => {},

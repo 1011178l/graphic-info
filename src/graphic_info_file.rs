@@ -13,7 +13,7 @@ pub struct GraphicInfoFile {
 }
 
 impl GraphicInfoFile {
-    pub fn new (path: &Path) -> Result<Self, Error> {
+    pub fn open (path: &Path) -> Result<Self, Error> {
         let file = File::open(&path)?;
         if file.metadata()?.len() % 40 != 0 {
             return Err(Error::new(ErrorKind::Other, "Invalid input file size."));
@@ -84,17 +84,17 @@ mod tests {
 
     #[test]
     fn test_new () {
-        assert!(GraphicInfoFile::new(&Path::new("./resources/GraphicInfo.test.bin")).is_ok());
+        assert!(GraphicInfoFile::open(&Path::new("./resources/GraphicInfo.test.bin")).is_ok());
     }
 
     #[test]
     fn test_new_failed() {
-        assert!(GraphicInfoFile::new(&Path::new("./resources/GraphicInfo-broken.test.bin")).is_err())
+        assert!(GraphicInfoFile::open(&Path::new("./resources/GraphicInfo-broken.test.bin")).is_err())
     }
 
     #[test]
     fn test_iter() {
-        let file = GraphicInfoFile::new(&Path::new("resources/GraphicInfo.test.bin")).unwrap();
+        let file = GraphicInfoFile::open(&Path::new("resources/GraphicInfo.test.bin")).unwrap();
         let blocks: Vec<GraphicInfo> = file.collect();
 
         assert_eq!(3, blocks.len());
@@ -104,7 +104,7 @@ mod tests {
     fn test_dump_into() {
         let database = Database::new(":memory:").unwrap();
         database.migrate().unwrap();
-        let mut file = GraphicInfoFile::new(&Path::new("resources/GraphicInfo.test.bin")).unwrap();
+        let mut file = GraphicInfoFile::open(&Path::new("resources/GraphicInfo.test.bin")).unwrap();
 
         assert!(file.dump_into(&database).is_ok());
     }
