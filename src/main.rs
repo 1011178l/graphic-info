@@ -52,17 +52,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             while let Some(row) = cursor.next()? {
                 let graphic_info = GraphicInfo::from(row);
 
-                match row[17].as_binary() {
-                    Some(binary) => {
-                        if bincode::serialize(&graphic_info)? != binary {
-                            database.update(row[0].as_integer().unwrap(), &bincode::serialize(&graphic_info)?)?;
-                        }
-                    },
-                    None => {
-                        database.update(row[0].as_integer().unwrap(), &bincode::serialize(&graphic_info)?)?;
-                    },
-                }
-
+                database.update(row[0].as_integer().unwrap(), &bincode::serialize(&graphic_info)?)?;
                 bincode::serialize_into(&output, &graphic_info)?;
             }
         },
