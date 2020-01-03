@@ -44,17 +44,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     match matches.subcommand() {
         ("build", Some(sub_matches)) => {
+            let mut file = GraphicInfoFile::new(Path::new(sub_matches.value_of("output").unwrap()))?;
             let database = Database::open(sub_matches.value_of("input").unwrap())?;
-            let output = File::create(Path::new(sub_matches.value_of("output").unwrap()))?;
 
-            let mut cursor = database.connection.prepare("SELECT * FROM graphic_info")?.cursor();
-
-            while let Some(row) = cursor.next()? {
-                let graphic_info = GraphicInfo::from(row);
-
-                database.update(row[0].as_integer().unwrap(), &bincode::serialize(&graphic_info)?)?;
-                bincode::serialize_into(&output, &graphic_info)?;
-            }
+            file.build_from(&database)?;
         },
         ("dump", Some(sub_matches)) => {
             let mut file = GraphicInfoFile::open(&Path::new(sub_matches.value_of("GraphicInfo.bin").unwrap()))?;

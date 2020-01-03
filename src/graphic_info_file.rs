@@ -13,7 +13,11 @@ pub struct GraphicInfoFile {
 }
 
 impl GraphicInfoFile {
-    pub fn open (path: &Path) -> Result<Self, Error> {
+    pub fn new(path: &Path) -> Result<Self, Error> {
+        Ok(Self{file: File::create(&path)?})
+    }
+
+    pub fn open(path: &Path) -> Result<Self, Error> {
         let file = File::open(&path)?;
         if file.metadata()?.len() % 40 != 0 {
             return Err(Error::new(ErrorKind::Other, "Invalid input file size."));
@@ -22,11 +26,11 @@ impl GraphicInfoFile {
         Ok(Self{file})
     }
 
-    pub fn show_info (&mut self) {
+    pub fn show_info(&mut self) {
         println!("Number of Graphic Info: {}", self.count());
     }
 
-    pub fn dump_into (&mut self, database: &Database) -> Result<(), sqlite::Error> {
+    pub fn dump_into(&mut self, database: &Database) -> Result<(), sqlite::Error> {
         let mut statement = database.connection.prepare(
             "INSERT INTO graphic_info (
                 graphic_id, address, length, offset_x, offset_y, width, height, tile_east, tile_south, access, unknown0, unknown1, unknown2, unknown3, unknown4, map, binary
@@ -59,6 +63,19 @@ impl GraphicInfoFile {
 
         Ok(())
     }
+
+    pub fn build_from(&mut self, database: &Database) -> Result<(), Box<dyn std::error::Error>> {
+        let mut cursor = database.connection.prepare("SELECT * FROM graphic_info")?.cursor();
+
+        while let Some(row) = cursor.next()? {
+            let graphic_info = GraphicInfo::from(row);
+
+            database.update(row[0].as_integer().unwrap(), &bincode::serialize(&graphic_info)?)?;
+            bincode::serialize_into(&self.file, &graphic_info)?;
+        }
+
+        Ok(())
+    }
 }
 
 impl Iterator for GraphicInfoFile {
@@ -83,7 +100,7 @@ mod tests {
     use std::path::Path;
 
     #[test]
-    fn test_new () {
+    fn test_new() {
         assert!(GraphicInfoFile::open(&Path::new("./resources/GraphicInfo.test.bin")).is_ok());
     }
 
