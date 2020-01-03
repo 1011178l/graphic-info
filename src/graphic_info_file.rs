@@ -58,7 +58,7 @@ impl GraphicInfoFile {
                 Value::Binary(bincode::serialize(&graphic_info).unwrap())
             ]).unwrap();
 
-            let _ = statement.next().unwrap();
+            statement.next().unwrap();
         });
 
         Ok(())
