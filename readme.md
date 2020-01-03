@@ -1,7 +1,7 @@
 # Graphic Info
 ![](https://github.com/x-gate/graphic-info/workflows/Rust/badge.svg)
 
-The GraphicInfo* parser.
+The GraphicInfo* tools.
 
 ## Usage
 
