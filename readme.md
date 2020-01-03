@@ -1,38 +1,37 @@
 # Graphic Info
 ![](https://github.com/x-gate/graphic-info/workflows/Rust/badge.svg)
 
-The GraphicInfo* parser.
+The GraphicInfo* tools.
 
 ## Usage
 
 ```
-graphic-info 0.1.0
+graphic-info 0.2.0
 Vincent Chi <song374561@chivincent.net>
 
 USAGE:
-    graphic-info <GraphicInfo.bin> [SUBCOMMAND]
+    graphic-info [SUBCOMMAND]
 
 FLAGS:
     -h, --help       Prints help information
     -V, --version    Prints version information
 
-ARGS:
-    <GraphicInfo.bin>    The path of GraphicInfo.bin
-
 SUBCOMMANDS:
-    dump    Dump all of graphic info into sqlite file.
-    help    Prints this message or the help of the given subcommand(s)
-    info    Show the information of graphic info file.
+    build    Build GraphicInfo.bin from sqlite.
+    dump     Dump all of graphic info into sqlite file.
+    help     Prints this message or the help of the given subcommand(s)
+    info     Show the information of graphic info file.
 ```
 
 ### Try it on! 
 
 - Show the information of graphic info file:
-    - `cargo run ./resources/GraphicInfo.test.bin`
-    - `cargo run ./resources/GraphicInfo.test.bin info`
+    - `cargo run info ./resources/GraphicInfo.test.bin`
 - Dump graphic info file into sqlite:
-    - `cargo run ./resources/GraphicInfo.test.bin dump`
-    - `cargo run ./resources/GraphicInfo.test.bin dump -o GraphicInfo.sqlite`
+    - `cargo run dump ./resources/GraphicInfo.test.bin`
+    - `cargo run dump ./resources/GraphicInfo.test.bin -o GraphicInfo.sqlite`
+- Build GraphicInfo.bin from sqlite:
+    - `cargo run build -i ./GraphicInfo.sqlite -o ./GraphicInfo.bin`
 
 ## LICENSE
 
