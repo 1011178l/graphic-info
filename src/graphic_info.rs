@@ -1,4 +1,5 @@
 use serde::{Serialize, Deserialize};
+use std::convert::From;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
 pub struct GraphicInfo {
@@ -15,6 +16,32 @@ pub struct GraphicInfo {
     pub unknown: [u8; 5],
     pub map: u32,
 }
+
+impl From<&[sqlite::Value]> for GraphicInfo {
+    fn from(row: &[sqlite::Value]) -> Self {
+        GraphicInfo {
+            id: row[1].as_integer().unwrap() as u32,
+            address: row[2].as_integer().unwrap() as u32,
+            length: row[3].as_integer().unwrap() as u32,
+            offset_x: row[4].as_integer().unwrap() as i32,
+            offset_y: row[5].as_integer().unwrap() as i32,
+            width: row[6].as_integer().unwrap() as u32,
+            height: row[7].as_integer().unwrap() as u32,
+            tile_east: row[8].as_integer().unwrap() as u8,
+            tile_south: row[9].as_integer().unwrap() as u8,
+            access: row[10].as_integer().unwrap() as u8,
+            unknown: [
+                row[11].as_integer().unwrap() as u8,
+                row[12].as_integer().unwrap() as u8,
+                row[13].as_integer().unwrap() as u8,
+                row[14].as_integer().unwrap() as u8,
+                row[15].as_integer().unwrap() as u8,
+            ],
+            map: row[16].as_integer().unwrap() as u32,
+        }
+    }
+}
+
 
 #[cfg(test)]
 mod test {
