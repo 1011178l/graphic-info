@@ -3,7 +3,8 @@ extern crate sqlite;
 use std::fs::File;
 use std::path::Path;
 use std::io::{Read, Error, ErrorKind};
-use crate::{GraphicInfo, Database};
+use crate::data_structure::GraphicInfo;
+use crate::storage::Sqlite;
 use sqlite::Value;
 use bincode;
 
@@ -30,7 +31,7 @@ impl GraphicInfoFile {
         println!("Number of Graphic Info: {}", self.count());
     }
 
-    pub fn dump_into(&mut self, database: &Database) -> Result<(), sqlite::Error> {
+    pub fn dump_into(&mut self, database: &Sqlite) -> Result<(), sqlite::Error> {
         let mut statement = database.connection.prepare(
             "INSERT INTO graphic_info (
                 graphic_id, address, length, offset_x, offset_y, width, height, tile_east, tile_south, access, unknown0, unknown1, unknown2, unknown3, unknown4, map, binary
@@ -64,7 +65,7 @@ impl GraphicInfoFile {
         Ok(())
     }
 
-    pub fn build_from(&mut self, database: &Database) -> Result<(), Box<dyn std::error::Error>> {
+    pub fn build_from(&mut self, database: &Sqlite) -> Result<(), Box<dyn std::error::Error>> {
         let mut cursor = database.connection.prepare("SELECT * FROM graphic_info")?.cursor();
 
         while let Some(row) = cursor.next()? {
@@ -96,7 +97,8 @@ impl Iterator for GraphicInfoFile {
 
 #[cfg(test)]
 mod tests {
-    use super::{GraphicInfoFile, GraphicInfo, Database};
+    use super::{GraphicInfoFile, GraphicInfo};
+    use super::Sqlite;
     use std::path::Path;
 
     #[test]
@@ -119,7 +121,7 @@ mod tests {
 
     #[test]
     fn test_dump_into() {
-        let database = Database::new(":memory:").unwrap();
+        let database = Sqlite::new(":memory:").unwrap();
         database.migrate().unwrap();
         let mut file = GraphicInfoFile::open(&Path::new("resources/GraphicInfo.test.bin")).unwrap();
 
