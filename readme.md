@@ -6,7 +6,7 @@ The GraphicInfo* tools.
 ## Usage
 
 ```
-graphic-info 0.2.0
+graphic-info 0.2.1
 Vincent Chi <song374561@chivincent.net>
 
 USAGE:
