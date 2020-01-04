@@ -9,13 +9,11 @@ use sqlite::Value;
 use bincode;
 
 #[derive(Debug)]
-pub struct GraphicInfoFile {
-    file: File,
-}
+pub struct GraphicInfoFile(File);
 
 impl GraphicInfoFile {
     pub fn new(path: &Path) -> Result<Self, Error> {
-        Ok(Self{file: File::create(&path)?})
+        Ok(Self(File::create(&path)?))
     }
 
     pub fn open(path: &Path) -> Result<Self, Error> {
@@ -24,7 +22,7 @@ impl GraphicInfoFile {
             return Err(Error::new(ErrorKind::Other, "Invalid input file size."));
         }
 
-        Ok(Self{file})
+        Ok(Self(file))
     }
 
     pub fn show_info(&mut self) {
@@ -72,7 +70,7 @@ impl GraphicInfoFile {
             let graphic_info = GraphicInfo::from(row);
 
             database.update(row[0].as_integer().unwrap(), &bincode::serialize(&graphic_info)?)?;
-            bincode::serialize_into(&self.file, &graphic_info)?;
+            bincode::serialize_into(&self.0, &graphic_info)?;
         }
 
         Ok(())
@@ -85,7 +83,7 @@ impl Iterator for GraphicInfoFile {
     fn next(&mut self) -> Option<Self::Item> {
         let mut buf = [0; 40];
 
-        match self.file.read_exact(&mut buf) {
+        match self.0.read_exact(&mut buf) {
             Ok(_) => {
                 let graphic_info: GraphicInfo = bincode::deserialize(&buf).unwrap();
                 return Some(graphic_info);
