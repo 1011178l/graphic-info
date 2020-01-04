@@ -2,7 +2,10 @@ extern crate clap;
 extern crate sqlite;
 
 use std::path::Path;
-use graphic_info::{GraphicInfoFile, Database};
+use graphic_info::{
+    data_structure::GraphicInfoFile,
+    storage::Sqlite,
+};
 use clap::{Arg, App, SubCommand};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -43,13 +46,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     match matches.subcommand() {
         ("build", Some(sub_matches)) => {
             let mut file = GraphicInfoFile::new(Path::new(sub_matches.value_of("output").unwrap()))?;
-            let database = Database::open(sub_matches.value_of("input").unwrap())?;
+            let database = Sqlite::open(sub_matches.value_of("input").unwrap())?;
 
             file.build_from(&database)?;
         },
         ("dump", Some(sub_matches)) => {
             let mut file = GraphicInfoFile::open(&Path::new(sub_matches.value_of("GraphicInfo.bin").unwrap()))?;
-            let database = Database::new(sub_matches.value_of("output").unwrap())?;
+            let database = Sqlite::new(sub_matches.value_of("output").unwrap())?;
             database.migrate()?;
 
             file.dump_into(&database)?;

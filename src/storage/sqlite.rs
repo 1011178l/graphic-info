@@ -1,19 +1,21 @@
 extern crate sqlite;
 
-use std::path::Path;
-use std::fs::File;
-use std::error::Error;
+use std::{
+    fs::File,
+    path::Path,
+    error::Error,
+};
 use sqlite::Connection;
 
-pub struct Database {
+pub struct Sqlite {
     pub connection: Connection,
 }
 
-impl Database {
+impl Sqlite {
     pub fn new(path: &str) -> Result<Self, Box<dyn Error>> {
         match path {
             ":memory:" => {
-                return Database::open(path);
+                return Sqlite::open(path);
             }
             _ => {
                 let path = Path::new(path);
@@ -21,7 +23,7 @@ impl Database {
                     File::create(path)?;
                 }
         
-                return Database::open(path.to_str().unwrap());
+                return Sqlite::open(path.to_str().unwrap());
             }
         }
     }

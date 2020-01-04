@@ -1,6 +1,6 @@
 [package]
 name = "graphic-info"
-version = "0.2.0"
+version = "0.2.1"
 authors = ["Vincent Chi <song374561@chivincent.net>"]
 edition = "2018"
 

@@ -45,7 +45,6 @@ impl From<&[sqlite::Value]> for GraphicInfo {
 
 #[cfg(test)]
 mod test {
-
     use super::GraphicInfo;
     use bincode;
 
