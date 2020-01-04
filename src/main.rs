@@ -2,8 +2,10 @@ extern crate clap;
 extern crate sqlite;
 
 use std::path::Path;
-use graphic_info::data_structure::GraphicInfoFile;
-use graphic_info::storage::Sqlite;
+use graphic_info::{
+    data_structure::GraphicInfoFile,
+    storage::Sqlite,
+};
 use clap::{Arg, App, SubCommand};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {

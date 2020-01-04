@@ -1,8 +1,10 @@
 extern crate sqlite;
 
-use std::path::Path;
-use std::fs::File;
-use std::error::Error;
+use std::{
+    fs::File,
+    path::Path,
+    error::Error,
+};
 use sqlite::Connection;
 
 pub struct Sqlite {

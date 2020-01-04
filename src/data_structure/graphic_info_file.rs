@@ -1,10 +1,14 @@
 extern crate sqlite;
 
-use std::fs::File;
-use std::path::Path;
-use std::io::{Read, Error, ErrorKind};
-use crate::data_structure::GraphicInfo;
-use crate::storage::Sqlite;
+use std::{
+    fs::File,
+    path::Path,
+    io::{Read, Error, ErrorKind},
+};
+use crate::{
+    data_structure::GraphicInfo,
+    storage::Sqlite,
+};
 use sqlite::Value;
 use bincode;
 
